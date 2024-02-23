@@ -577,8 +577,8 @@ namespace MatchZy
             database.SetMatchEndData(liveMatchId, winnerName, matchzyTeam1.seriesScore, matchzyTeam2.seriesScore);
             if (resetCvarsOnSeriesEnd) ResetChangedConvars();
             isMatchLive = false;
-            AddTimer(restartDelay, () => {
-                ResetMatch(false);
+            AddTimer(restartDelay + 60, () => {
+                Server.ExecuteCommand("quit");
             });
         }
 

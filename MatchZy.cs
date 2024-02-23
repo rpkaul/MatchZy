@@ -12,7 +12,7 @@ namespace MatchZy
     public partial class MatchZy : BasePlugin
     {
 
-        public override string ModuleName => "MatchZy";
+        public override string ModuleName => "Custom Build MatchZy 23rd Feb 60 Seconds";
         public override string ModuleVersion => "0.7.0";
 
         public override string ModuleAuthor => "WD- (https://github.com/shobhit-pathak/)";
