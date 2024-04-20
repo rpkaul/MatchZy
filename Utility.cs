@@ -645,7 +645,6 @@ namespace MatchZy
             {
                 StartLive();
             }
-            Server.PrintToChatAll($"{chatPrefix} {ChatColors.Green}MatchZy{ChatColors.Default} Plugin by {ChatColors.Green}WD-{ChatColors.Default}");
         }
 
         public void HandleClanTags() {
