@@ -241,8 +241,8 @@ namespace MatchZy
             PrintToAllChat($"{ChatColors.Green}LIVE!");
             PrintToAllChat($"{ChatColors.Green}LIVE!");
             PrintToAllChat($"{ChatColors.Green}LIVE!");
-            PrintToChatAll($"{chatPrefix} {ChatColors.Red}Plugin Version {ChatColors.Green}MatchZy v0.7.6 by WD-");
-            PrintToChatAll($"{chatPrefix} {ChatColors.Red}Commands {ChatColors.Green}!pause or !tac, !tech, !stop. Overtime enabled.");
+            PrintToChatAll($"{chatPrefix} {ChatColors.Green}Plugin Version - MatchZy v0.7.6 by WD-");
+            PrintToChatAll($"{chatPrefix} {ChatColors.Green}Commands - !pause or !tac, !tech, !stop. Overtime enabled.");
             PrintToChatAll($"{chatPrefix} {ChatColors.Red}Custom agent skins are prohibited. However, teams will not be disqualified. If players have an issue with that, they can ask the opponents to remove it.");
 
             // Adding timer here to make sure that CFG execution is completed till then
