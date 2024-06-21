@@ -50,7 +50,7 @@ public partial class MatchZy
                     if (team == CsTeam.None)
                     {
                         Log($"[EventPlayerConnectFull] KICKING PLAYER STEAMID: {steamId}, Name: {player.PlayerName} (STEAM ID NOT ALLOWED!)");
-                        Server.PrintToChatAll($"{ChatColors.Red} KICKING PLAYER {ChatColors.Green}{player.PlayerName}, {ChatColors.Red}STEAMID: {ChatColors.Green}{steamId} {ChatColors.Red}(STEAM ID NOT ALLOWED!)");
+                        Server.PrintToChatAll($"{ChatColors.Red}KICKING PLAYER- {ChatColors.Green}{player.PlayerName}, {ChatColors.Red}STEAMID- {ChatColors.Green}{steamId} {ChatColors.Red}( STEAM ID NOT ALLOWED )");
                         KickPlayer(player);
                         return HookResult.Continue;
                     }
