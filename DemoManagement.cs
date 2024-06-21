@@ -38,15 +38,15 @@ namespace MatchZy
                 string tempDemoPath = demoPath == "" ? demoFileName : demoPath + demoFileName;
                 activeDemoFile = tempDemoPath;
                 Log($"[StartDemoRecoding] Starting demo recording, path: {tempDemoPath}");
-                //Server.ExecuteCommand($"tv_record {tempDemoPath}");
-                //isDemoRecording = true;
+                Server.ExecuteCommand($"tv_record {tempDemoPath}");
+                isDemoRecording = true;
             }
             catch (Exception ex)
             {
                 Log($"[StartDemoRecording - FATAL] Error: {ex.Message}. Starting demo recording with path. Name: {demoFileName}");
                 // This is to avoid demo loss in any case of exception
-                //Server.ExecuteCommand($"tv_record {demoFileName}");
-                //isDemoRecording = true;
+                Server.ExecuteCommand($"tv_record {demoFileName}");
+                isDemoRecording = true;
             }
 
         }
