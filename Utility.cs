@@ -307,7 +307,7 @@ namespace MatchZy
             PrintToAllChat($"{ChatColors.Olive}LIVE!");
             PrintToAllChat($"{ChatColors.Lime}LIVE!");
             PrintToAllChat($"{ChatColors.Green}LIVE!");
-            PrintToAllChat($"{ChatColors.Red}Plugin Version {ChatColors.Green}MatchZy v0.8.1 by WD-");
+            PrintToAllChat($"{ChatColors.Red}Plugin Version {ChatColors.Green}MatchZy v0.8.2 by WD-");
             PrintToAllChat($"{ChatColors.Red}Commands {ChatColors.Green}!pause or !tac, !tech, !stop. Overtime enabled.");
             PrintToAllChat($"{ChatColors.Red}Custom agent skins are prohibited in official matches, so make sure to check the rulebook provided by the tournament organizer before using them.");
 
