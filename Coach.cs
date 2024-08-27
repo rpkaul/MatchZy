@@ -76,7 +76,6 @@ public partial class MatchZy
         if (coaches.Count == 0) return;
         int freezeTime = ConVar.Find("mp_freezetime")!.GetPrimitiveValue<int>();
         coachKillTimer ??= AddTimer(freezeTime - 1.5f, KillCoaches);
-        HashSet<CCSPlayerController> coaches = GetAllCoaches();
 
         foreach (var coach in coaches)
         {
