@@ -641,7 +641,7 @@ namespace MatchZy
             else if (Server.IsMapValid(mapName))
             {
                 Server.ExecuteCommand($"bot_kick");
-                Server.ExecuteCommand($"changelevel \"{mapName}\"");
+                Server.ExecuteCommand($"ds_workshop_changelevel \"{mapName}\"");
             }
             else
             {
@@ -977,7 +977,7 @@ namespace MatchZy
                 else if (Server.IsMapValid(mapName))
                 {
                     Server.ExecuteCommand($"bot_kick");
-                    Server.ExecuteCommand($"changelevel \"{mapName}\"");
+                    Server.ExecuteCommand($"ds_workshop_changelevel \"{mapName}\"");
                 }
             });
         }

@@ -487,7 +487,7 @@ namespace MatchZy
             else if (Server.IsMapValid(currentMapName))
             {
                 Server.ExecuteCommand($"bot_kick");
-                Server.ExecuteCommand($"changelevel \"{currentMapName}\"");
+                Server.ExecuteCommand($"ds_workshop_changelevel \"{currentMapName}\"");
             }
             else
             {
