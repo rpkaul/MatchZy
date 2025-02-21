@@ -33,6 +33,10 @@ public partial class MatchZy
                         KickPlayer(player);
                         return HookResult.Continue;
                     }
+                    else
+                    {
+                        SwitchPlayerTeam(player, team);
+                    }
                 }
             }
 

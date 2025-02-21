@@ -32,25 +32,6 @@ namespace MatchZy
             player.PrintToChat($"{chatPrefix} {message}");
         }
 
-        private void ReplyToUserCommand(CCSPlayerController? player, string message, bool console = false)
-        {
-            if (player == null)
-            {
-                Server.PrintToConsole($"{chatPrefix} {message}");
-            }
-            else
-            {
-                if (console)
-                {
-                    player.PrintToConsole($"{chatPrefix} {message}");
-                }
-                else
-                {
-                    player.PrintToChat($"{chatPrefix} {message}");
-                }
-            }
-        }
-
         private void LoadAdmins()
         {
             string fileName = "MatchZy/admins.json";
@@ -641,7 +622,7 @@ namespace MatchZy
             else if (Server.IsMapValid(mapName))
             {
                 Server.ExecuteCommand($"bot_kick");
-                Server.ExecuteCommand($"host_workshop_map \"{mapName}\"");
+                Server.ExecuteCommand($"changelevel \"{mapName}\"");
             }
             else
             {
@@ -977,7 +958,7 @@ namespace MatchZy
                 else if (Server.IsMapValid(mapName))
                 {
                     Server.ExecuteCommand($"bot_kick");
-                    Server.ExecuteCommand($"host_workshop_map \"{mapName}\"");
+                    Server.ExecuteCommand($"changelevel \"{mapName}\"");
                 }
             });
         }
@@ -1029,7 +1010,6 @@ namespace MatchZy
 
         public void HandlePostRoundStartEvent(EventRoundStart @event)
         {
-            if (isDryRun) RandomizeSpawns();
             if (!matchStarted) return;
             playerHasTakenDamage = false;
             HandleCoaches();
@@ -1145,6 +1125,25 @@ namespace MatchZy
             return false;
         }
 
+        private void ReplyToUserCommand(CCSPlayerController? player, string message, bool console = false)
+        {
+            if (player == null)
+            {
+                Server.PrintToConsole($"[MatchZy] {message}");
+            }
+            else
+            {
+                if (console)
+                {
+                    player.PrintToConsole($"[MatchZy] {message}");
+                }
+                else
+                {
+                    player.PrintToChat($"{chatPrefix} {message}");
+                }
+            }
+        }
+
         private void PauseMatch(CCSPlayerController? player, CommandInfo? command)
         {
             if (isMatchLive && isPaused)
@@ -1170,19 +1169,6 @@ namespace MatchZy
                 // ReplyToUserCommand(player, "You cannot use this command when tactical timeout is active.");
                 ReplyToUserCommand(player, Localizer["matchzy.utility.tacticaltimeout"]);
                 return;
-            }
-            if (!techPauseEnabled.Value && player != null)
-            {
-                PrintToPlayerChat(player, Localizer["matchzy.pause.techpausenotenabled"]);
-                return;
-            }
-            if(!string.IsNullOrEmpty(techPausePermission.Value) && techPausePermission.Value != "\"\"")
-            {
-                if (!IsPlayerAdmin(player, "css_pause", techPausePermission.Value))
-                {
-                    SendPlayerNotAdminMessage(player);
-                    return;
-                }
             }
             if (isMatchLive && !isPaused)
             {
@@ -1301,7 +1287,6 @@ namespace MatchZy
             if (matchStarted || (!isPractice && !isSleep)) return;
             ExecUnpracCommands();
             ResetMatch();
-            RemoveSpawnBeams();
             Server.PrintToChatAll($"{chatPrefix} Match mode loaded!");
         }
 
@@ -1371,11 +1356,9 @@ namespace MatchZy
         private void SendAvailableCommandsMessage(CCSPlayerController? player)
         {
             if (!IsPlayerValid(player)) return;
-
-            ReplyToUserCommand(player, "Available commands:");
-
             if (isPractice)
             {
+                ReplyToUserCommand(player, $"{ChatColors.Green}Available commands: {ChatColors.Default}");
                 player!.PrintToChat($" {ChatColors.Green}Spawns: {ChatColors.Default}.spawn, .ctspawn, .tspawn, .bestspawn, .worstspawn");
                 player.PrintToChat($" {ChatColors.Green}Bots: {ChatColors.Default}.bot, .nobots, .crouchbot, .boost, .crouchboost");
                 player.PrintToChat($" {ChatColors.Green}Nades: {ChatColors.Default}.loadnade, .savenade, .importnade, .listnades");
@@ -1386,17 +1369,20 @@ namespace MatchZy
             }
             if (readyAvailable)
             {
+                ReplyToUserCommand(player, $"{ChatColors.Green}Available commands: {ChatColors.Default}");
                 player!.PrintToChat($" {ChatColors.Green}Ready/Unready: {ChatColors.Default}.ready, .unready");
                 return;
             }
             if (isSideSelectionPhase)
             {
+                ReplyToUserCommand(player, $"{ChatColors.Green}Available commands: {ChatColors.Default}");
                 player!.PrintToChat($" {ChatColors.Green}Side Selection: {ChatColors.Default}.stay, .switch");
                 return;
             }
             if (matchStarted)
             {
                 string stopCommandMessage = isStopCommandAvailable ? ", .stop" : "";
+                ReplyToUserCommand(player, $"{ChatColors.Green}Available commands: {ChatColors.Default}");
                 player!.PrintToChat($" {ChatColors.Green}Pause/Restore: {ChatColors.Default}.pause, .unpause, .tac, .tech{stopCommandMessage}");
                 return;
             }
@@ -1803,12 +1789,6 @@ namespace MatchZy
             return false;
         }
 
-        public bool IsWingmanMode()
-        {
-            if (GetGameMode() == 2 && GetGameType() == 0) return true;
-            return false;
-        }
-
         public void KickPlayer(CCSPlayerController player)
         {
             if (player.UserId.HasValue)
@@ -2025,32 +2005,6 @@ namespace MatchZy
             {
                 player.PlayerPawn.Value.WeaponServices.ActiveWeapon.Raw = matchedWeapon.Raw;
                 player.DropActiveWeapon();
-            }
-        }
-
-        public void RandomizeSpawns()
-        {
-            List<CCSPlayerController> players = Utilities.GetPlayers();
-
-            Dictionary<byte, List<Position>> teamSpawns = new()
-            {
-                { (byte)CsTeam.CounterTerrorist, spawnsData[(byte)CsTeam.CounterTerrorist].Select(position => new Position(position)).ToList() },
-                { (byte)CsTeam.Terrorist, spawnsData[(byte)CsTeam.Terrorist].Select(position => new Position(position)).ToList() }
-            };
-
-            Random random = new();
-
-            foreach (var player in players)
-            {
-                if (!IsPlayerValid(player)) continue;
-                
-                if (teamSpawns[player.TeamNum].Count == 0) break;
-
-                int randomIndex = random.Next(teamSpawns[player.TeamNum].Count);
-                Position spawnPosition = teamSpawns[player.TeamNum][randomIndex];
-                teamSpawns[player.TeamNum].RemoveAt(randomIndex);
-
-                spawnPosition.Teleport(player);
             }
         }
     }

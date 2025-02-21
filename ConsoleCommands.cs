@@ -441,7 +441,6 @@ namespace MatchZy
         }
 
         [ConsoleCommand("css_restart", "Restarts the match")]
-        [ConsoleCommand("css_rr", "Restarts the match")]
         public void OnRestartMatchCommand(CCSPlayerController? player, CommandInfo? command)
         {
             if (IsPlayerAdmin(player, "css_restart", "@css/config"))
@@ -487,7 +486,7 @@ namespace MatchZy
             else if (Server.IsMapValid(currentMapName))
             {
                 Server.ExecuteCommand($"bot_kick");
-                Server.ExecuteCommand($"host_workshop_map \"{currentMapName}\"");
+                Server.ExecuteCommand($"changelevel \"{currentMapName}\"");
             }
             else
             {

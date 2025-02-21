@@ -36,6 +36,8 @@ You can refer to the installation steps given here: https://github.com/PhlexPlex
 docker-compose.yml file:
 
 ```yml title="docker-compose.yml example"
+version: "3.7"
+
 services:
   redis:
     image: redis:6
@@ -60,8 +62,6 @@ services:
       - MYSQL_COLLATION=utf8mb4_general_ci
     ports:
       - 3306:3306
-    volumes:
-      - ./get5db/mysql:/var/lib/mysql
 
   caddy:
     image: lucaslorentz/caddy-docker-proxy:ci-alpine
