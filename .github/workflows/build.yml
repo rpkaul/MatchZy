@@ -1,5 +1,4 @@
 name: Build and Release
-name: Build and Release
 
 on:
   push:
@@ -105,7 +104,7 @@ jobs:
 
       - name: Publish Discord Notification
         env:
-          DISCORD_WEBHOOK: ${{ https://discord.com/api/webhooks/1343466053086482442/fPIR5fq-kKBje_15kNK2iMhV64jg47i0WubOG8I-oayRFcTWcwpehmVS8KqYf5Zbn-pb }}
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         uses: Ilshidur/action-discord@0.3.2
         with:
           args: "A new release of MatchZy is here! MatchZy v${{ env.MATCHZY_VERSION }} (${{ steps.create_release.outputs.url }})"
