@@ -447,7 +447,7 @@ namespace MatchZy
             {
                 if (!isPractice)
                 {
-                    ResetMatch();
+                    ResetMatch(sendDiscordNotification: true);
                 }
                 else
                 {

@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using System.Text;
 using Newtonsoft.Json.Linq;
 using System.Drawing;
+using Microsoft.Extensions.Logging;
 
 
 namespace MatchZy
@@ -30,6 +31,43 @@ namespace MatchZy
         private void PrintToPlayerChat(CCSPlayerController player, string message)
         {
             player.PrintToChat($"{chatPrefix} {message}");
+		}
+
+
+
+        private void ReplyToUserCommand(CCSPlayerController? player, string message, bool console = false)
+
+        {
+
+            if (player == null)
+
+            {
+
+              Server.PrintToConsole($"{chatPrefix} {message}");
+
+            }
+
+            else
+
+            {
+
+                if (console)
+
+                {
+
+                    player.PrintToConsole($"{chatPrefix} {message}");
+
+                }
+
+                else
+
+                {
+
+                    player.PrintToChat($"{chatPrefix} {message}");
+
+                }
+
+            }
         }
 
         private void LoadAdmins()
@@ -308,6 +346,8 @@ namespace MatchZy
             PrintToAllChat($"{ChatColors.Olive}LIVE!");
             PrintToAllChat($"{ChatColors.Lime}LIVE!");
             PrintToAllChat($"{ChatColors.Green}LIVE!");
+			
+			SendMatchStatusDiscordNotif(true, matchzyTeam1.teamName, matchzyTeam2.teamName);
 
             var goingLiveEvent = new GoingLiveEvent
             {
@@ -351,7 +391,7 @@ namespace MatchZy
             return (count, totalHealth);
         }
 
-        private void ResetMatch(bool warmupCfgRequired = true)
+        private void ResetMatch(bool warmupCfgRequired = true, bool sendDiscordNotification = false)
         {
             try
             {
@@ -360,6 +400,15 @@ namespace MatchZy
                 {
                     Server.ExecuteCommand($"tv_stoprecord");
                     isDemoRecording = false;
+                }
+				if(sendDiscordNotification)
+
+                {
+
+                    (int t1score, int t2score) = GetTeamsScore();
+
+                    SendMatchStatusDiscordNotif(false, matchzyTeam1.teamName, matchzyTeam2.teamName, t1score, t2score);
+
                 }
                 // Reset match data
                 matchStarted = false;
@@ -859,6 +908,7 @@ namespace MatchZy
                 StatsTeam1 = new MatchZyStatsTeam(matchzyTeam1.id, matchzyTeam1.teamName, team1SeriesScore, t1score, 0, 0, new List<StatsPlayer>()),
                 StatsTeam2 = new MatchZyStatsTeam(matchzyTeam2.id, matchzyTeam2.teamName, team2SeriesScore, t2score, 0, 0, new List<StatsPlayer>())
             };
+			SendMatchStatusDiscordNotif(false, matchzyTeam1.teamName, matchzyTeam2.teamName, t1score, t2score);
 
             Task.Run(async () =>
             {
@@ -2005,6 +2055,85 @@ namespace MatchZy
             {
                 player.PlayerPawn.Value.WeaponServices.ActiveWeapon.Raw = matchedWeapon.Raw;
                 player.DropActiveWeapon();
+				}
+
+        }
+
+
+
+        private void SendMatchStatusDiscordNotif(bool isLive, string t1name, string t2name, int t1score = 0, int t2score = 0)
+
+        {
+
+            string url = discordWebhookURL.Value;
+
+
+
+            if(string.IsNullOrWhiteSpace(url)) return;
+
+
+
+            if(isLive)
+
+            {
+
+                Task.Run(async () =>
+
+                {
+
+                    await SendDiscordWebhookMessage(discordWebhookURL.Value, $"# {t1name} vs {t2name} match is live");
+
+                });
+
+            }
+
+            else
+
+            {
+
+                string map = Server.MapName;
+
+                Task.Run(async () =>
+
+                {
+
+                    string wonline = t1score > t2score ? $"{t1name} won {t1score}-{t2score}" : t1score < t2score ? $"{t2name} won {t2score}-{t1score}" : $"Match tied {t2score}-{t1score}";
+
+
+
+                    await SendDiscordWebhookMessage(discordWebhookURL.Value, $"# {t1name} vs {t2name}\n \n# {wonline} - {map}");
+
+                });
+
+            }
+
+        }
+
+
+
+        private async Task SendDiscordWebhookMessage(string url, string message)
+
+        {
+
+            using (HttpClient httpClient = new HttpClient())
+
+            {
+
+                try
+
+                {
+
+                    _ = await httpClient.PostAsync(url, new StringContent(JsonSerializer.Serialize(new { content = message, avatar_url = "https://lotgaming.xyz/assets/img/favicons/lot120.png" }), Encoding.UTF8, "application/json"));
+
+                }
+
+                catch(Exception ex)
+
+                {
+
+                    Logger.LogError($"[SendDiscordWebhookMessage] Failed to send discord message: {ex.Message}");
+
+                }
             }
         }
     }

@@ -13,9 +13,11 @@ namespace MatchZy
     {
 
         public override string ModuleName => "MatchZy";
-        public override string ModuleVersion => "0.8.5";
+        public override string ModuleVersion => "0.8.5.1 - With Discord Notification, Windows Restore fix , SteamID not allowed text in chat ";
 
-        public override string ModuleAuthor => "WD- (https://github.com/shobhit-pathak/)";
+
+
+        public override string ModuleAuthor => "WD- (https://github.com/shobhit-pathak/), Cruze, LOTGaming";
 
         public override string ModuleDescription => "A plugin for running and managing CS2 practice/pugs/scrims/matches!";
 

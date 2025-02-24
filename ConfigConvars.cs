@@ -28,6 +28,8 @@ namespace MatchZy
         public FakeConVar<bool> stopCommandNoDamage = new("matchzy_stop_command_no_damage", "Whether the stop command becomes unavailable if a player damages a player from the opposing team.", false);
 
         public FakeConVar<string> matchStartMessage = new("matchzy_match_start_message", "Message to show when the match starts. Use $$$ to break message into multiple lines. Set to \"\" to disable.", "");
+		
+		public FakeConVar<string> discordWebhookURL = new("matchzy_discordnotification_webhook_url", "URL to send match status to. Set to \"\" to disable.", "", ConVarFlags.FCVAR_PROTECTED);
 
         [ConsoleCommand("matchzy_whitelist_enabled_default", "Whether Whitelist is enabled by default or not. Default value: false")]
         public void MatchZyWLConvar(CCSPlayerController? player, CommandInfo command)
