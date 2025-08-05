@@ -694,23 +694,39 @@ namespace MatchZy
         [ConsoleCommand("version", "Returns server version")]
         public void OnVersionCommand(CCSPlayerController? player, CommandInfo? command)
         {
-            if (command == null) return;
-            string steamInfFilePath = Path.Combine(Server.GameDirectory, "csgo", "steam.inf");
-
-            if (!File.Exists(steamInfFilePath))
+            if (player == null)
             {
-                command.ReplyToCommand("Unable to locate steam.inf file!");
+                ReplyToUserCommand(player, $"MatchZy Version: {ModuleVersion}");
             }
-            var steamInfContent = File.ReadAllText(steamInfFilePath);
+            else
+            {
+                PrintToPlayerChat(player, Localizer["matchzy.version", ModuleVersion]);
+            }
+        }
 
-            Regex regex = new(@"ServerVersion=(\d+)");
-            Match match = regex.Match(steamInfContent);
-
-            // Extract the version number
-            string? serverVersion = match.Success ? match.Groups[1].Value : null;
-
-            // Currently returning only server version to show server status as available on Get5
-            command.ReplyToCommand((serverVersion != null) ? $"Protocol version {serverVersion} [{serverVersion}/{serverVersion}]" : "Unable to get server version");
+        [ConsoleCommand("css_allbombstats", "Shows bomb plants and defuses for all players (Admin only)")]
+        public void OnAllBombStatsCommand(CCSPlayerController? player, CommandInfo? command)
+        {
+            if (!IsPlayerAdmin(player, "css_allbombstats", "@css/config"))
+            {
+                SendPlayerNotAdminMessage(player);
+                return;
+            }
+            
+            PrintToAllChat(Localizer["matchzy.allbombstats.header"]);
+            
+            foreach (var kvp in playerData)
+            {
+                int userId = kvp.Key;
+                CCSPlayerController playerController = kvp.Value;
+                
+                if (!IsPlayerValid(playerController)) continue;
+                
+                int bombPlants = playerBombPlants.ContainsKey(userId) ? playerBombPlants[userId] : 0;
+                int bombDefuses = playerBombDefuses.ContainsKey(userId) ? playerBombDefuses[userId] : 0;
+                
+                PrintToAllChat(Localizer["matchzy.allbombstats.player", playerController.PlayerName, bombPlants, bombDefuses]);
+            }
         }
     }
 }

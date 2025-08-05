@@ -56,6 +56,27 @@ namespace MatchZy
         private Dictionary<int, bool> playerReadyStatus = new Dictionary<int, bool>();
         private Dictionary<int, CCSPlayerController> playerData = new Dictionary<int, CCSPlayerController>();
 
+        // Bomb tracking data
+        private Dictionary<int, int> playerBombPlants = new Dictionary<int, int>();
+        private Dictionary<int, int> playerBombDefuses = new Dictionary<int, int>();
+
+        // Knife kill tracking data
+        private Dictionary<int, int> playerKnifeKills = new Dictionary<int, int>();
+
+        // Flashbang tracking data
+        private Dictionary<int, int> playerFlashAssists = new Dictionary<int, int>();
+        private Dictionary<int, int> playerTeammatesFlashed = new Dictionary<int, int>();
+
+        // Flashbang timing tracking for assists
+        private Dictionary<int, DateTime> playerLastFlashed = new Dictionary<int, DateTime>();
+
+        // KAST tracking data (Kills, Assists, Survivals, Trades)
+        private Dictionary<int, int> playerKastRounds = new Dictionary<int, int>();
+        private Dictionary<int, int> playerTotalRounds = new Dictionary<int, int>();
+
+        // Suicide tracking data
+        private Dictionary<int, int> playerSuicides = new Dictionary<int, int>();
+
         // Admin Data
         private Dictionary<string, string> loadedAdmins = new Dictionary<string, string>();
 
@@ -193,6 +214,7 @@ namespace MatchZy
                 { ".throwdecoy", OnRethrowDecoyCommand },
                 { ".throwmolotov", OnRethrowMolotovCommand },
                 { ".rethrowmolotov", OnRethrowMolotovCommand },
+                { ".allbombstats", OnAllBombStatsCommand },
                 { ".timer", OnTimerCommand },
                 { ".lastindex", OnLastIndexCommand },
                 { ".bestspawn", OnBestSpawnCommand },
@@ -536,6 +558,13 @@ namespace MatchZy
             RegisterEventHandler<EventHegrenadeDetonate>(EventHegrenadeDetonateHandler);
             RegisterEventHandler<EventMolotovDetonate>(EventMolotovDetonateHandler);
             RegisterEventHandler<EventDecoyStarted>(EventDecoyDetonateHandler);
+
+            // Register bomb event handlers
+            RegisterEventHandler<EventBombPlanted>(EventBombPlantedHandler);
+            RegisterEventHandler<EventBombDefused>(EventBombDefusedHandler);
+
+            // Register player death handler for statistics
+            RegisterEventHandler<EventPlayerDeath>(EventPlayerDeathHandler);
 
             Console.WriteLine($"[{ModuleName} {ModuleVersion} LOADED] MatchZy by WD- (https://github.com/shobhit-pathak/)");
         }

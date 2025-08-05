@@ -434,6 +434,26 @@ namespace MatchZy
                 noFlashList = new();
                 lastGrenadesData = new();
                 nadeSpecificLastGrenadeData = new();
+                
+                // Reset bomb tracking data
+                playerBombPlants = new Dictionary<int, int>();
+                playerBombDefuses = new Dictionary<int, int>();
+                
+                // Reset knife kill tracking data
+                playerKnifeKills = new Dictionary<int, int>();
+                
+                // Reset flashbang tracking data
+                playerFlashAssists = new Dictionary<int, int>();
+                playerTeammatesFlashed = new Dictionary<int, int>();
+                playerLastFlashed = new Dictionary<int, DateTime>();
+                
+                // Reset KAST tracking data
+                playerKastRounds = new Dictionary<int, int>();
+                playerTotalRounds = new Dictionary<int, int>();
+                
+                // Reset suicide tracking data
+                playerSuicides = new Dictionary<int, int>();
+                
                 UnpauseMatch();
 
                 matchzyTeam1.teamName = "COUNTER-TERRORISTS";
@@ -1651,7 +1671,15 @@ namespace MatchZy
                         { "LiveTime", playerStats.LiveTime },
                         { "HeadShotKills", playerStats.HeadShotKills },
                         { "CashEarned", playerStats.CashEarned },
-                        { "EnemiesFlashed", playerStats.EnemiesFlashed }
+                        { "EnemiesFlashed", playerStats.EnemiesFlashed },
+                        { "BombPlants", playerBombPlants.ContainsKey(player.UserId!.Value) ? playerBombPlants[player.UserId.Value] : 0 },
+                        { "BombDefuses", playerBombDefuses.ContainsKey(player.UserId!.Value) ? playerBombDefuses[player.UserId.Value] : 0 },
+                        { "KnifeKills", playerKnifeKills.ContainsKey(player.UserId!.Value) ? playerKnifeKills[player.UserId.Value] : 0 },
+                        { "FlashAssists", playerFlashAssists.ContainsKey(player.UserId!.Value) ? playerFlashAssists[player.UserId.Value] : 0 },
+                        { "TeammatesFlashed", playerTeammatesFlashed.ContainsKey(player.UserId!.Value) ? playerTeammatesFlashed[player.UserId.Value] : 0 },
+                        { "KastRounds", playerKastRounds.ContainsKey(player.UserId!.Value) ? playerKastRounds[player.UserId.Value] : 0 },
+                        { "TotalRounds", playerTotalRounds.ContainsKey(player.UserId!.Value) ? playerTotalRounds[player.UserId.Value] : 0 },
+                        { "Suicides", playerSuicides.ContainsKey(player.UserId!.Value) ? playerSuicides[player.UserId.Value] : 0 }
                     };
 
                     string teamName = "Spectator";
@@ -1677,16 +1705,16 @@ namespace MatchZy
                         Assists = playerStats.Assists,
                         FlashAssists = 0,
                         TeamKills = 0,
-                        Suicides = 0,
+                        Suicides = playerSuicides.ContainsKey(player.UserId!.Value) ? playerSuicides[player.UserId.Value] : 0,
                         Damage = playerStats.Damage,
                         UtilityDamage = playerStats.UtilityDamage,
                         EnemiesFlashed = playerStats.EnemiesFlashed,
                         FriendliesFlashed = 0,
-                        KnifeKills = 0,
+                        KnifeKills = playerKnifeKills.ContainsKey(player.UserId!.Value) ? playerKnifeKills[player.UserId.Value] : 0,
                         HeadshotKills = playerStats.HeadShotKills,
                         RoundsPlayed = roundsPlayed,
-                        BombDefuses = 0,
-                        BombPlants = 0,
+                        BombDefuses = playerBombDefuses.ContainsKey(player.UserId!.Value) ? playerBombDefuses[player.UserId.Value] : 0,
+                        BombPlants = playerBombPlants.ContainsKey(player.UserId!.Value) ? playerBombPlants[player.UserId.Value] : 0,
                         Kills1 = 0,
                         Kills2 = playerStats.Enemy2Ks,
                         Kills3 = playerStats.Enemy3Ks,

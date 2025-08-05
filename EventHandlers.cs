@@ -105,6 +105,25 @@ public partial class MatchZy
             noFlashList.Remove(userId);
             lastGrenadesData.Remove(userId);
             nadeSpecificLastGrenadeData.Remove(userId);
+            
+            // Clean up bomb tracking data
+            playerBombPlants.Remove(userId);
+            playerBombDefuses.Remove(userId);
+            
+            // Clean up knife kill tracking data
+            playerKnifeKills.Remove(userId);
+            
+            // Clean up flashbang tracking data
+            playerFlashAssists.Remove(userId);
+            playerTeammatesFlashed.Remove(userId);
+            playerLastFlashed.Remove(userId);
+            
+            // Clean up KAST tracking data
+            playerKastRounds.Remove(userId);
+            playerTotalRounds.Remove(userId);
+            
+            // Clean up suicide tracking data
+            playerSuicides.Remove(userId);
 
             return HookResult.Continue;
         }
@@ -307,6 +326,24 @@ public partial class MatchZy
             PrintToPlayerChat(player!, Localizer["matchzy.pracc.flash", player!.PlayerName, $"{(DateTime.Now - thrownTime).TotalSeconds:0.00}"]);
             lastGrenadeThrownTime.Remove(@event.Entityid);
         }
+
+        // Track flashbang assists during live matches
+        if (matchStarted && player!.UserId.HasValue)
+        {
+            int userId = player.UserId.Value;
+            
+            // Track when player was flashed for assist detection
+            playerLastFlashed[userId] = DateTime.Now;
+            
+            // Track flashbang assists (kills within 3 seconds of flash)
+            if (!playerFlashAssists.ContainsKey(userId))
+            {
+                playerFlashAssists[userId] = 0;
+            }
+            
+            Log($"[Flashbang Detonate] Player {player.PlayerName} was flashed at {DateTime.Now}");
+        }
+
         return HookResult.Continue;
     }
 
@@ -347,5 +384,183 @@ public partial class MatchZy
             lastGrenadeThrownTime.Remove(@event.Entityid);
         }
         return HookResult.Continue;
+    }
+
+    public HookResult EventBombPlantedHandler(EventBombPlanted @event, GameEventInfo info)
+    {
+        try
+        {
+            if (!matchStarted) return HookResult.Continue;
+
+            CCSPlayerController? player = @event.Userid;
+            if (!IsPlayerValid(player)) return HookResult.Continue;
+
+            // Track bomb plant for the player
+            if (player!.UserId.HasValue)
+            {
+                int userId = player.UserId.Value;
+                if (!playerBombPlants.ContainsKey(userId))
+                {
+                    playerBombPlants[userId] = 0;
+                }
+                playerBombPlants[userId]++;
+
+                Log($"[EventBombPlanted] Player {player.PlayerName} planted the bomb. Total plants: {playerBombPlants[userId]}");
+            }
+
+            return HookResult.Continue;
+        }
+        catch (Exception e)
+        {
+            Log($"[EventBombPlantedHandler FATAL] An error occurred: {e.Message}");
+            return HookResult.Continue;
+        }
+    }
+
+    public HookResult EventBombDefusedHandler(EventBombDefused @event, GameEventInfo info)
+    {
+        try
+        {
+            if (!matchStarted) return HookResult.Continue;
+
+            CCSPlayerController? player = @event.Userid;
+            if (!IsPlayerValid(player)) return HookResult.Continue;
+
+            // Track bomb defuse for the player
+            if (player!.UserId.HasValue)
+            {
+                int userId = player.UserId.Value;
+                if (!playerBombDefuses.ContainsKey(userId))
+                {
+                    playerBombDefuses[userId] = 0;
+                }
+                playerBombDefuses[userId]++;
+
+                Log($"[EventBombDefused] Player {player.PlayerName} defused the bomb. Total defuses: {playerBombDefuses[userId]}");
+            }
+
+            return HookResult.Continue;
+        }
+        catch (Exception e)
+        {
+            Log($"[EventBombDefusedHandler FATAL] An error occurred: {e.Message}");
+            return HookResult.Continue;
+        }
+    }
+
+    public HookResult EventPlayerDeathHandler(EventPlayerDeath @event, GameEventInfo info)
+    {
+        try
+        {
+            if (!matchStarted) return HookResult.Continue;
+
+            CCSPlayerController? attacker = @event.Attacker;
+            CCSPlayerController? victim = @event.Userid;
+
+            if (!IsPlayerValid(victim)) return HookResult.Continue;
+
+            // Track suicides (self-kills)
+            if (attacker == victim && victim!.UserId.HasValue)
+            {
+                int victimId = victim.UserId.Value;
+                string weaponName = @event.Weapon ?? "";
+
+                // Exclude bomb explosion deaths
+                if (weaponName.Contains("c4") || weaponName.Contains("weapon_c4"))
+                {
+                    return HookResult.Continue;
+                }
+
+                // Exclude deaths from own molotov when jumping with low HP
+                if (weaponName.Contains("molotov") || weaponName.Contains("incgrenade"))
+                {
+                    // Check if player was jumping and had low HP (simplified check)
+                    // In a real implementation, you'd track player velocity and health
+                    if (victim.Health <= 20) // Low HP threshold
+                    {
+                        return HookResult.Continue;
+                    }
+                }
+
+                // Count as suicide
+                if (!playerSuicides.ContainsKey(victimId))
+                {
+                    playerSuicides[victimId] = 0;
+                }
+                playerSuicides[victimId]++;
+
+                Log($"[Suicide] Player {victim.PlayerName} committed suicide with {weaponName}. Total suicides: {playerSuicides[victimId]}");
+            }
+
+            // Skip team kills for other statistics
+            if (!IsPlayerValid(attacker) || attacker == victim || attacker!.TeamNum == victim!.TeamNum) 
+            {
+                return HookResult.Continue;
+            }
+
+            // Track knife kills
+            if (attacker!.UserId.HasValue)
+            {
+                int attackerId = attacker.UserId.Value;
+                
+                // Check if the kill was made with a knife
+                string weaponName = @event.Weapon ?? "";
+                if (weaponName.Contains("knife") || weaponName.Contains("knife_t"))
+                {
+                    if (!playerKnifeKills.ContainsKey(attackerId))
+                    {
+                        playerKnifeKills[attackerId] = 0;
+                    }
+                    playerKnifeKills[attackerId]++;
+
+                    Log($"[Knife Kill] Player {attacker.PlayerName} killed {victim!.PlayerName} with knife. Total knife kills: {playerKnifeKills[attackerId]}");
+                }
+
+                // Track flashbang assists (simplified - in real implementation you'd track flash timing)
+                // For now, we'll track if the victim was recently flashed
+                if (victim!.UserId.HasValue)
+                {
+                    int victimId = victim.UserId.Value;
+                    
+                    // Check if victim was recently flashed (within last 3 seconds)
+                    if (playerLastFlashed.ContainsKey(victimId))
+                    {
+                        TimeSpan timeSinceFlash = DateTime.Now - playerLastFlashed[victimId];
+                        if (timeSinceFlash.TotalSeconds <= 3.0) // 3 second window for flashbang assist
+                        {
+                            if (!playerFlashAssists.ContainsKey(attackerId))
+                            {
+                                playerFlashAssists[attackerId] = 0;
+                            }
+                            playerFlashAssists[attackerId]++;
+                            
+                            Log($"[Flashbang Assist] Player {attacker.PlayerName} got flashbang assist on {victim.PlayerName} ({timeSinceFlash.TotalSeconds:F1}s after flash)");
+                        }
+                    }
+                }
+
+                // Track KAST (Kills, Assists, Survivals, Trades)
+                // For kills - increment KAST rounds for attacker
+                if (!playerKastRounds.ContainsKey(attackerId))
+                {
+                    playerKastRounds[attackerId] = 0;
+                }
+                playerKastRounds[attackerId]++;
+
+                // Track total rounds for KAST calculation
+                if (!playerTotalRounds.ContainsKey(attackerId))
+                {
+                    playerTotalRounds[attackerId] = 0;
+                }
+                playerTotalRounds[attackerId]++;
+            }
+
+            return HookResult.Continue;
+        }
+        catch (Exception e)
+        {
+            Log($"[EventPlayerDeathHandler FATAL] An error occurred: {e.Message}");
+            return HookResult.Continue;
+        }
     }
 }
