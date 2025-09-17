@@ -409,7 +409,7 @@ namespace MatchZy
                     {
                         if (messageCommandArg != "")
                         {
-                            //Server.PrintToChatAll($"{adminChatPrefix} {messageCommandArg}");
+                            PrintToPlayerChat($"{adminChatPrefix} {messageCommandArg}");
                         }
                         else
                         {
