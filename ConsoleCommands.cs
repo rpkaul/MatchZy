@@ -127,7 +127,7 @@ namespace MatchZy
             if (player.TeamNum == knifeWinner)
             {
                 PrintToAllChat(Localizer["matchzy.knife.decidedtostay", knifeWinnerName]);
-                // Server.PrintToChatAll($"{chatPrefix} {ChatColors.Green}{knifeWinnerName}{ChatColors.Default} has decided to stay!");
+                // //Server.PrintToChatAll($"{chatPrefix} {ChatColors.Green}{knifeWinnerName}{ChatColors.Default} has decided to stay!");
                 StartLive();
             }
         }
@@ -145,7 +145,7 @@ namespace MatchZy
                 Server.ExecuteCommand("mp_swapteams;");
                 SwapSidesInTeamData(true);
                 PrintToAllChat(Localizer["matchzy.knife.decidedtoswitch", knifeWinnerName]);
-                // Server.PrintToChatAll($"{chatPrefix} {ChatColors.Green}{knifeWinnerName}{ChatColors.Default} has decided to switch!");
+                // //Server.PrintToChatAll($"{chatPrefix} {ChatColors.Green}{knifeWinnerName}{ChatColors.Default} has decided to switch!");
                 StartLive();
             }
         }
@@ -284,7 +284,7 @@ namespace MatchZy
                 else
                 {
                     PrintToAllChat(Localizer["matchzy.pause.teamwantstounpause", unpauseTeamName, remainingUnpauseTeam]);
-                    // Server.PrintToChatAll($"{chatPrefix} {ChatColors.Green}{unpauseTeamName}{ChatColors.Default} wants to unpause the match. {ChatColors.Green}{remainingUnpauseTeam}{ChatColors.Default}, please write !unpause to confirm.");
+                    // //Server.PrintToChatAll($"{chatPrefix} {ChatColors.Green}{unpauseTeamName}{ChatColors.Default} wants to unpause the match. {ChatColors.Green}{remainingUnpauseTeam}{ChatColors.Default}, please write !unpause to confirm.");
                 }
                 if (!isPaused && pausedStateTimer != null)
                 {
@@ -467,7 +467,7 @@ namespace MatchZy
             {
                 if (!isPractice)
                 {
-                    // Server.PrintToChatAll($"{chatPrefix} An admin force-ended the match.");
+                    // //Server.PrintToChatAll($"{chatPrefix} An admin force-ended the match.");
                     PrintToAllChat(Localizer["matchzy.cc.endmatch"]);
                     ResetMatch();
                 }
@@ -559,7 +559,7 @@ namespace MatchZy
                 }
                 else
                 {
-                    //Server.PrintToChatAll($"{chatPrefix} {ChatColors.Green}Admin{ChatColors.Default} has started the game!");
+                    ////Server.PrintToChatAll($"{chatPrefix} {ChatColors.Green}Admin{ChatColors.Default} has started the game!");
                     PrintToAllChat(Localizer["matchzy.cc.gamestarted"]);
                     HandleMatchStart();
                 }
@@ -576,7 +576,7 @@ namespace MatchZy
             if (command == null) return;
             if (player == null)
             {
-                Server.PrintToChatAll($"{adminChatPrefix} {command.ArgString}");
+                //Server.PrintToChatAll($"{adminChatPrefix} {command.ArgString}");
                 return;
             }
             if (!IsPlayerAdmin(player, "css_asay", "@css/chat"))
@@ -589,7 +589,7 @@ namespace MatchZy
             {
                 message += command.ArgByIndex(i) + " ";
             }
-            Server.PrintToChatAll($"{adminChatPrefix} {message}");
+            //Server.PrintToChatAll($"{adminChatPrefix} {message}");
         }
 
         [ConsoleCommand("reload_admins", "Reload admins of MatchZy")]
